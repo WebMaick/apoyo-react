@@ -2,10 +2,12 @@
 
 ## Hooks
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+El archivo useFetch.js se debar usar en llamada de apis sin el uso de servidores.
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+## Codigo Helpers
 
-### Codigo Helpers
+El archivo helpHttp.js es para usar en un crud con un servidor. devuelve un promesa y se debera usar un .then().
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+## Rutas
+
+Los archivos son para definir si debemos acceder a una pagina despues de un login.
