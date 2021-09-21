@@ -1,0 +1,164 @@
+================ context ===================
+import React, { createContext, useEffect, useReducer, useState } from "react";
+import { helpHttp } from "../helpers/helpHttp";
+import { initialState, reducerCrud } from "../reducer/reducerCrud";
+import { types } from "../types/types";
+
+export const contextZodiaco = createContext();
+
+export const ZodiacoProvider = ({ children }) => {
+	const [updateActive, setUpdateActive] = useState(null);
+	const [errorData, setErrorData] = useState(null);
+	const [state, dispatch] = useReducer(reducerCrud, initialState);
+	/*=== Inicio de: leer Caballeros Zodiaco ===*/
+	useEffect(() => {
+		helpHttp()
+			.get(`http://localhost:5001/caballeros`)
+			.then((res) => {
+				if (!res.err) {
+					// console.log(res);
+					dispatch({
+						type: types.leer,
+						payload: res,
+					});
+					setErrorData(null);
+				} else {
+					dispatch({
+						type: types.sinData,
+					});
+					setErrorData(res);
+				}
+			});
+	}, []);
+	/*=== Inicio de: Adicionar Caballeros Zodiaco ===*/
+	const addCaballero = (newcaballero) => {
+		let options = {
+			body: newcaballero,
+			headers: { "content-type": "application/json" },
+		};
+		helpHttp()
+			.post(`http://localhost:5001/caballeros`, options)
+			.then((res) => {
+				if (!res.err) {
+					// console.log(res);
+					dispatch({
+						type: types.adicionar,
+						payload: res,
+					});
+					setErrorData(null);
+				} else {
+					dispatch({
+						type: types.sinData,
+					});
+					setErrorData(res);
+				}
+			});
+	};
+
+	/*=== Inicio de: Eliminar Caballeros Zodiaco ===*/
+	const deleteCaballero = (id) => {
+		let options = {
+			headers: { "content-type": "application/json" },
+		};
+		helpHttp()
+			.del(`http://localhost:5001/caballeros/${id}`, options)
+			.then((res) => {
+				if (!res.err) {
+					// console.log(res);
+					dispatch({
+						type: types.eliminar,
+						payload: id,
+					});
+					setErrorData(null);
+				} else {
+					dispatch({
+						type: types.sinData,
+					});
+					setErrorData(res);
+				}
+			});
+	};
+
+	/*=== Inicio de: Actualizar Caballeros Zodiaco ===*/
+	const updateCaballero = (upCaballero) => {
+		let options = {
+			body: upCaballero,
+			headers: { "content-type": "application/json" },
+		};
+		helpHttp()
+			.put(`http://localhost:5001/caballeros/${upCaballero.id}`, options)
+			.then((res) => {
+				if (!res.err) {
+					// console.log(res);
+					dispatch({
+						type: types.actualizar,
+						payload: res,
+					});
+					setErrorData(null);
+				} else {
+					dispatch({
+						type: types.sinData,
+					});
+					setErrorData(res);
+				}
+			});
+	};
+
+	return (
+		<contextZodiaco.Provider
+			value={{
+				state,
+				errorData,
+				addCaballero,
+				deleteCaballero,
+				updateCaballero,
+				updateActive,
+				setUpdateActive,
+			}}
+		>
+			{children}
+		</contextZodiaco.Provider>
+	);
+};
+
+
+
+
+============================================REDUCER===================================================================================
+import { types } from "../types/types";
+
+export const initialState = {
+	db: null,
+};
+
+export const reducerCrud = (state, action) => {
+	switch (action.type) {
+		case types.leer:
+			return { ...state, db: action.payload.map((data) => data) };
+		case types.adicionar:
+			return {
+				...state,
+				db: [...state.db, action.payload],
+			};
+
+		case types.eliminar:
+			return {
+				...state,
+				db: state.db.filter((el) => el.id !== action.payload),
+			};
+
+		case types.actualizar:
+			return {
+				...state,
+				db: state.db.map((el) =>
+					el.id === action.payload.id ? action.payload : el,
+				),
+			};
+
+		case types.sinData:
+			return initialState;
+
+		default:
+			return state;
+	}
+};
